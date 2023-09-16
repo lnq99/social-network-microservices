@@ -1,0 +1,14 @@
+db:
+  url: postgresql://program:test@db:5432/profiles?sslmode=disable
+
+migration:
+  url: file://./db/migration
+
+server:
+  host: 0.0.0.0
+  port: 8070
+
+#service:
+#  bonus_url: http://bonus:8050
+#  flight_url: http://flight:8060
+#  ticket_url: http://ticket:8070

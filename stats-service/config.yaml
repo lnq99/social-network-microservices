@@ -1,0 +1,9 @@
+db:
+  url: postgresql://program:test@localhost:5432/profiles?sslmode=disable
+
+migration:
+  url: file://./db/migration
+
+server:
+  host: 0.0.0.0
+  port: 8050
