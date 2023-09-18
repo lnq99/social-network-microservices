@@ -1,33 +1,33 @@
--- name: GetAccount :many
+-- name: GetAccounts :many
 select *
 from Account;
 
--- name: GetUser :one
+-- name: GetAccount :one
 select *
 from Account
 where id = $1
 limit 1;
 
--- name: GetUserByName :one
+-- name: GetAccountByEmail :one
 select *
 from Account
-where name = $1
+where email = $1
 limit 1;
 
--- name: CreateUser :one
-insert into Account (name, role, password)
+-- name: CreateAccount :one
+insert into Account (email, password, role)
 values ($1, $2, $3)
 returning *;
 
--- name: UpdateUser :execrows
+-- email: UpdateAccount :execrows
 update Account
-set name     = coalesce(sqlc.narg(name), name),
-    role     = coalesce(sqlc.narg(role), role),
-    password = coalesce(sqlc.narg(password), password)
+set email    = coalesce(sqlc.narg(email), email),
+    password = coalesce(sqlc.narg(password), password),
+    role     = coalesce(sqlc.narg(role), role)
 where id = sqlc.arg(id)
 returning *;
 
--- name: DeleteUser :execrows
+-- name: DeleteAccount :execrows
 delete
 from Account
 where id = $1

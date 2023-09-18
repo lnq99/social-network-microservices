@@ -3,7 +3,7 @@ USERNAME=program
 PASSWORD=test
 HOST=localhost
 PORT=5432
-DB_NAME=account
+DB_NAME=auth
 
 DB_URL="$(DB_DRIVER)://$(USERNAME):$(PASSWORD)@$(HOST):$(PORT)/$(DB_NAME)?sslmode=disable"
 

@@ -6,8 +6,8 @@ import (
 	"net/url"
 )
 
-func NewPostsService(rawUrl string) Service {
-	target, _ := url.Parse(rawUrl)
+func NewPostsService() Service {
+	target, _ := url.Parse(PostsServiceAddr)
 	proxy := httputil.NewSingleHostReverseProxy(target)
 
 	proxyHandler := func(p *httputil.ReverseProxy) http.HandlerFunc {
@@ -19,24 +19,24 @@ func NewPostsService(rawUrl string) Service {
 	service := Service{
 		Info: ServiceInfo{
 			Name: "Posts",
-			Addr: rawUrl,
+			Addr: PostsServiceAddr,
 			Path: "",
 		},
 		Endpoints: []Endpoint{
-			{"GET", "post/{id}", proxyHandler},
 			{"GET", "post/u/{id}", proxyHandler},
+			{"GET", "post/{id}", proxyHandler},
 			{"POST", "post", proxyHandler},
 			{"DELETE", "post/{id}", proxyHandler},
 
-			{"GET", "react/{post_id}", proxyHandler},
 			{"GET", "react/u/{u_id}", proxyHandler},
+			{"GET", "react/{post_id}", proxyHandler},
 			{"PUT", "react/{post_id}/{type}", proxyHandler},
 
 			{"GET", "cmt/{id}", proxyHandler},
 			{"POST", "cmt", proxyHandler},
 
-			{"GET", "photo/{id}", proxyHandler},
 			{"GET", "photo/u/{id}", proxyHandler},
+			{"GET", "photo/{id}", proxyHandler},
 		},
 	}
 	return service

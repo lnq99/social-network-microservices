@@ -15,7 +15,7 @@ export default {
     },
   },
   actions: {
-    async login({ commit, state }, payload) {
+    async login({commit, state}, payload) {
       let options = {
         method: 'POST',
         url: '/auth/login',
@@ -24,11 +24,11 @@ export default {
 
       return axios(options).then((data) => {
         if (data) {
+          console.log(data)
           commit('setRootId', data.user.id)
           commit('setToken', data.token)
           commit('auth', true)
-          commit('profile/initProfile', data.user, { root: true })
-          console.log(data)
+          commit('profile/initProfile', data.user, {root: true})
           return true
         }
       })
@@ -44,8 +44,8 @@ export default {
       }
       return axios(options)
     },
-    logout({ commit }) {
-      axios({ url: '/logout' }).then(() => {
+    logout({commit}) {
+      axios({url: '/logout'}).then(() => {
         commit('auth', false)
         commit('setToken', '')
       })

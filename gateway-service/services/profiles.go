@@ -6,8 +6,8 @@ import (
 	"net/url"
 )
 
-func NewProfilesService(rawUrl string) Service {
-	target, _ := url.Parse(rawUrl)
+func NewProfilesService() Service {
+	target, _ := url.Parse(ProfilesServiceAddr)
 	proxy := httputil.NewSingleHostReverseProxy(target)
 
 	proxyHandler := func(p *httputil.ReverseProxy) http.HandlerFunc {
@@ -19,7 +19,7 @@ func NewProfilesService(rawUrl string) Service {
 	service := Service{
 		Info: ServiceInfo{
 			Name: "Profiles",
-			Addr: rawUrl,
+			Addr: ProfilesServiceAddr,
 			Path: "",
 		},
 		Endpoints: []Endpoint{

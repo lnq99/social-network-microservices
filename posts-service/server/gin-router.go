@@ -6,10 +6,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//var tokenAuth = jwtauth.New("HS256", []byte(cfg.Auth.JwtSigningKey), nil)
+
 func (s *GinServer) SetupRouter() {
 	r := s.engine
 
 	api := r.Group("api/v1")
+	//api := r.Group("api/v1", controller.AuthMiddleware(ctrl.auth))
+	//handler := jwtauth.Verifier(tokenAuth)
+	//api.Use(gin.WrapH())
 
 	post := api.Group("post")
 	{

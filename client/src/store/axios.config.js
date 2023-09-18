@@ -4,7 +4,8 @@ import router from '../router'
 // axios.defaults.baseURL = 'http://localhost:8000/api/v1'
 // axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
 // axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8'
-axios.defaults.baseURL = '/api/v1'
+axios.defaults.withCredentials = true
+axios.defaults.baseURL = 'http://localhost:8080/api/v1'
 
 axios.interceptors.request.use(
   function (config) {
@@ -29,6 +30,7 @@ axios.interceptors.response.use(
         // router.replace({ name: 'Login' })
       }
     }
-    return Promise.reject(error).catch(() => {})
+    return Promise.reject(error).catch(() => {
+    })
   }
 )

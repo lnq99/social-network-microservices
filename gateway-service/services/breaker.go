@@ -23,6 +23,7 @@ var (
 	}
 
 	profilesCb = breaker.NewCircuitBreaker(CbSetting)
+	postsCb    = breaker.NewCircuitBreaker(CbSetting)
 )
 
 type ServiceResponse struct {
@@ -32,16 +33,13 @@ type ServiceResponse struct {
 
 func CallServiceWithCircuitBreaker(
 	cb *breaker.CircuitBreaker, method, url string,
-	header map[string]string, body io.Reader) (ServiceResponse, error) {
+	header http.Header, body io.Reader) (ServiceResponse, error) {
 
 	res, err := cb.Execute(func() (interface{}, error) {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
 		req, _ := http.NewRequestWithContext(ctx, method, url, body)
-
-		for k, v := range header {
-			req.Header.Set(k, v)
-		}
+		req.Header = header
 		res, err := Client.Do(req)
 		if err != nil {
 			return ServiceResponse{status: http.StatusServiceUnavailable},

@@ -1,14 +1,17 @@
 package services
 
 import (
+	"encoding/json"
 	"github.com/go-chi/chi/v5"
+	"io"
 	"net/http"
-	"net/http/httputil"
 )
 
 var (
-	//ProfilesServiceAddr = ""
-	Client = &http.Client{}
+	ProfilesServiceAddr = ""
+	PostsServiceAddr    = ""
+	StatsServiceAddr    = ""
+	Client              = &http.Client{}
 	//AuthHeader          = "Authorization"
 	//UsernameHeader      = "Name"
 )
@@ -28,7 +31,6 @@ type ServiceInfo struct {
 type Service struct {
 	Info      ServiceInfo
 	Endpoints []Endpoint
-	Proxy     *httputil.ReverseProxy
 }
 
 type ChiRouter struct {
@@ -46,17 +48,20 @@ func (s ChiRouter) RegisterService(service Service) {
 	}
 }
 
-//func chiProcessResponse[T any](c *chi.Ctx, status int, body io.ReadCloser, err error) error {
-//	var r T
-//
-//	if err == nil {
-//		err = json.NewDecoder(body).Decode(&r)
-//		body.Close()
-//	}
-//
-//	c.Status(status)
-//	if err != nil {
-//		return c.JSON(ToErrResponse(err))
-//	}
-//	return c.JSON(r)
-//}
+func processResponse[T any](w http.ResponseWriter, status int, body io.ReadCloser, err error) error {
+	var r T
+
+	if err == nil {
+		err = json.NewDecoder(body).Decode(&r)
+		body.Close()
+	}
+
+	w.WriteHeader(status)
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		err = json.NewEncoder(w).Encode(ToErrResponse(err))
+		return err
+	}
+	err = json.NewEncoder(w).Encode(r)
+	return err
+}

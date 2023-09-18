@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import {createRouter, createWebHistory} from 'vue-router'
 import store from '../store/index.js'
 import Main from '../views/Main.vue'
 
@@ -13,11 +13,11 @@ const routes = [
         name: 'NewsFeed',
         component: () => import('../views/NewsFeed.vue'),
       },
-      {
-        path: 'notif',
-        name: 'Notification',
-        component: () => import('../views/Notification.vue'),
-      },
+      // {
+      //   path: 'notif',
+      //   name: 'Notification',
+      //   component: () => import('../views/Notification.vue'),
+      // },
       {
         path: 'search',
         name: 'Search',
@@ -56,7 +56,7 @@ const routes = [
       })
     },
   },
-  { path: '/:pathMatch(.*)*', name: 'not-found', redirect: '/' },
+  {path: '/:pathMatch(.*)*', name: 'not-found', redirect: '/'},
 ]
 
 const router = createRouter({

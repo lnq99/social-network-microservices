@@ -9,6 +9,8 @@ import (
 type ServiceConfig struct {
 	ProfilesAddr string `yaml:"profiles_addr"`
 	PostsAddr    string `yaml:"posts_addr"`
+	StatsAddr    string `yaml:"stats_addr"`
+	QueueAddr    string `yaml:"queue_addr"`
 }
 
 type ServerConfig struct {
@@ -16,14 +18,24 @@ type ServerConfig struct {
 	Port string `mapstructure:"PORT"`
 }
 
+type DbConfig struct {
+	Url string `mapstructure:"DB_URL"`
+}
+
+type MigrationConfig struct {
+	Url string `mapstructure:"MIGRATION_URL"`
+}
+
 type AuthConfig struct {
 	JwtSigningKey string `mapstructure:"JWT_SIGNING_KEY"`
 }
 
 type Config struct {
-	Service ServiceConfig
-	Server  ServerConfig
-	Auth    AuthConfig
+	Service   ServiceConfig
+	Server    ServerConfig
+	Db        DbConfig
+	Migration MigrationConfig
+	Auth      AuthConfig
 }
 
 func getEnv(key, fallback string) string {

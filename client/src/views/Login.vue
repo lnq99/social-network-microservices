@@ -3,9 +3,9 @@
     <card class="login-card box-shadow p18">
       <h2>Login</h2>
       <el-form
+        ref="form"
         :model="model"
         :rules="rules"
-        ref="form"
         @submit.native.prevent="onLogin"
       >
         <el-form-item prop="email">
@@ -19,17 +19,17 @@
           <el-input
             v-model="model.password"
             placeholder="Password"
-            type="password"
             prefix-icon="el-icon-lock"
+            type="password"
           ></el-input>
         </el-form-item>
         <el-form-item>
           <el-button
             :loading="loading"
-            class="login-button"
-            type="primary"
-            native-type="submit"
             block
+            class="login-button"
+            native-type="submit"
+            type="primary"
             >Login</el-button
           >
         </el-form-item>
@@ -51,8 +51,8 @@ export default {
   data() {
     return {
       model: {
-        email: 'test@gmail.com',
-        password: 'easypass',
+        email: 'admin@gmail.com',
+        password: 'admin8888',
       },
       loading: false,
       rules: {

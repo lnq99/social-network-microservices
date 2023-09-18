@@ -9,13 +9,13 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type DbConfig struct {
-	Url string `mapstructure:"DB_URL"`
-}
-
 type ServerConfig struct {
 	Host string `mapstructure:"HOST"`
 	Port string `mapstructure:"PORT"`
+}
+
+type DbConfig struct {
+	Url string `mapstructure:"DB_URL"`
 }
 
 type MigrationConfig struct {
@@ -23,8 +23,8 @@ type MigrationConfig struct {
 }
 
 type Config struct {
-	Db        DbConfig
 	Server    ServerConfig
+	Db        DbConfig
 	Migration MigrationConfig
 }
 

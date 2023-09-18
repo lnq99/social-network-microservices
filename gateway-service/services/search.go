@@ -5,25 +5,25 @@ import (
 	"net/http"
 )
 
-type NewsFeedService interface {
-	GetNewsFeed(id, limit, offset int) (feed []int64, err error)
+type SearchService interface {
+	GetSearch(id, limit, offset int) (feed []int64, err error)
 }
 
-func NewNewsFeedService() Service {
+func NewSearchService() Service {
 	service := Service{
 		Info: ServiceInfo{
-			Name: "NewsFeed",
+			Name: "Search",
 			Addr: "",
 			Path: "",
 		},
 		Endpoints: []Endpoint{
-			{"GET", "", getNewsFeed},
+			{"GET", "search", getSearch},
 		},
 	}
 	return service
 }
 
-func getNewsFeed(w http.ResponseWriter, r *http.Request) {
+func getSearch(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode([]int{
 		1, 2, 3,

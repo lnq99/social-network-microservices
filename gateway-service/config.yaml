@@ -5,3 +5,13 @@ server:
 service:
   profiles_addr: http://profiles:8070
   posts_addr: http://posts:8060
+  stats_addr: http://stats:8050
+  queue_addr: http://queue:6379
+
+db:
+  url: postgresql://program:test@db:5432/auth?sslmode=disable
+
+migration:
+  url: file://./db/migration
+
+

@@ -2,8 +2,12 @@ package main
 
 import (
 	"app/config"
+	"app/repository"
 	"app/services"
+	"app/util"
+	"context"
 	"fmt"
+	"github.com/go-chi/cors"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -17,8 +21,7 @@ import (
 )
 
 var (
-	cfg       *config.Config
-	tokenAuth *jwtauth.JWTAuth
+	cfg *config.Config
 )
 
 func init() {
@@ -30,15 +33,25 @@ func init() {
 
 	fmt.Printf("%+v\n", cfg)
 
-	tokenAuth = jwtauth.New("HS256", []byte(cfg.Auth.JwtSigningKey), nil) // replace with secret key
+	services.ProfilesServiceAddr = cfg.Service.ProfilesAddr
+	services.PostsServiceAddr = cfg.Service.PostsAddr
+	services.StatsServiceAddr = cfg.Service.StatsAddr
+	services.TokenAuth = jwtauth.New("HS256", []byte(cfg.Auth.JwtSigningKey), nil)
 
-	// For debugging/example purposes, we generate and print
-	// a sample jwt token with claims `user_id:123` here:
-	_, tokenString, _ := tokenAuth.Encode(map[string]interface{}{"user_id": 123})
-	fmt.Printf("DEBUG: a sample jwt is %s\n\n", tokenString)
+	runDBMigration(cfg.Migration.Url, cfg.Db.Url)
 }
 
 func main() {
+	db, err := util.NewPgxPool(cfg.Db.Url, context.Background())
+	if err != nil {
+		log.Fatal("cannot connect to db")
+	}
+	defer db.Close()
+
+	runDBMigration(cfg.Migration.Url, cfg.Db.Url)
+
+	repo := repository.NewSqlRepository(db)
+
 	r := chi.NewRouter()
 
 	//r.Use(middleware.RequestID)
@@ -47,28 +60,36 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
 
+	r.Use(cors.Handler(cors.Options{
+		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
+		AllowedOrigins: []string{"https://*", "http://*"},
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowCredentials: true,
+	}))
+
 	// Protected routes
 	r.Group(func(r chi.Router) {
 		// Seek, verify and validate JWT tokens
-		r.Use(jwtauth.Verifier(tokenAuth))
+		r.Use(jwtauth.Verifier(services.TokenAuth))
 
-		// Handle valid / invalid tokens. In this example, we use
-		// the provided authenticator middleware, but you can write your
-		// own very easily, look at the Authenticator method in jwtauth.go
-		// and tweak it, its not scary.
-		//r.Use(jwtauth.Authenticator)
+		// Handle valid / invalid tokens
+		r.Use(jwtauth.Authenticator)
 
 		r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
 			_, claims, _ := jwtauth.FromContext(r.Context())
-			w.Write([]byte(fmt.Sprintf("protected area. hi %v", claims["user_id"])))
+			w.Write([]byte(fmt.Sprintf("protected area. hi %+v", claims)))
 		})
 
 		r.Route("/api/v1", func(r chi.Router) {
 			//rProtected := r.Use(services.AuthMiddleware)
 
 			s := services.ChiRouter{r}
-			s.RegisterService(services.NewProfilesService(cfg.Service.ProfilesAddr))
-			s.RegisterService(services.NewPostsService(cfg.Service.PostsAddr))
+			s.RegisterService(services.NewProfilesService())
+			s.RegisterService(services.NewPostsService())
+			s.RegisterService(services.NewNewsFeedService())
+			s.RegisterService(services.NewSearchService())
 		})
 	})
 
@@ -80,8 +101,13 @@ func main() {
 
 		r.Route("/api/v1/auth", func(r chi.Router) {
 			s := services.ChiRouter{r}
-			s.RegisterService(services.NewAuthService())
+			s.RegisterService(services.NewAuthService(repo))
 		})
+
+		//r.Route("/api/v1/feed", func(r chi.Router) {
+		//	s := services.ChiRouter{r}
+		//	s.RegisterService(services.NewNewsFeedService())
+		//})
 
 		r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
@@ -105,11 +131,11 @@ func main() {
 func runDBMigration(migrationURL string, dbSource string) {
 	migration, err := migrate.New(migrationURL, dbSource)
 	if err != nil {
-		log.Fatal(err, "cannot create new migrate instance")
+		log.Fatal(err, " - cannot create new migrate instance")
 	}
 
 	if err = migration.Up(); err != nil && err != migrate.ErrNoChange {
-		log.Fatal(err, "failed to run migrate up")
+		log.Fatal(err, " - failed to run migrate up")
 	}
 
 	log.Println("db migrated successfully")
