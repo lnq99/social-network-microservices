@@ -11,6 +11,12 @@ import (
 type Querier interface {
 	CreateProfile(ctx context.Context, arg CreateProfileParams) (int32, error)
 	CreateRelationship(ctx context.Context, arg CreateRelationshipParams) (Relationship, error)
+	// UPDATE Relationship
+	// SET typ  = COALESCE(sqlc.narg(typ), typ),
+	//     other = COALESCE(sqlc.narg(other), other)
+	// WHERE user1 = sqlc.arg(user1)
+	//   AND user2 = sqlc.arg(user2)
+	// RETURNING *;
 	DeleteRelationship(ctx context.Context, arg DeleteRelationshipParams) (Relationship, error)
 	FriendsDetail(ctx context.Context, urid int32) ([]byte, error)
 	GetFriendRelationships(ctx context.Context, user1 int32) ([]Relationship, error)

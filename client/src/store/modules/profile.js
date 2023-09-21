@@ -37,7 +37,7 @@ export default {
         console.log(err)
       })
     },
-    async getProfileShort({ state, commit }, id) {
+    async getProfileShort({state, commit}, id) {
       let p = state.shortProfiles[id]
       if (p) {
         // console.log('cache hit', id)
@@ -62,13 +62,14 @@ export default {
         return data
       })
     },
-    async saveIntro({ state }, intro) {
+    async saveIntro({state}, intro) {
+      console.log(intro)
       state.intro = intro
       let options = {
         method: 'PATCH',
-        url: `/profile/info`,
+        url: `/profile/intro`,
         data: {
-          info: intro,
+          intro: intro,
         },
       }
       return axios(options).then((data) => {

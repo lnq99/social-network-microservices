@@ -3,6 +3,8 @@ package services
 import (
 	"encoding/json"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 )
 
 type SearchService interface {
@@ -10,20 +12,29 @@ type SearchService interface {
 }
 
 func NewSearchService() Service {
+	target, _ := url.Parse(ProfilesServiceAddr)
+	proxy := httputil.NewSingleHostReverseProxy(target)
+
+	profilesProxyHandler := func(p *httputil.ReverseProxy) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			p.ServeHTTP(w, r)
+		}
+	}(proxy)
+
 	service := Service{
 		Info: ServiceInfo{
 			Name: "Search",
 			Addr: "",
-			Path: "",
+			Path: "search",
 		},
 		Endpoints: []Endpoint{
-			{"GET", "search", getSearch},
+			{"GET", "", profilesProxyHandler},
 		},
 	}
 	return service
 }
 
-func getSearch(w http.ResponseWriter, r *http.Request) {
+func searchName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode([]int{
 		1, 2, 3,

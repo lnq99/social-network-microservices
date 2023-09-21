@@ -25,7 +25,7 @@ func (r *RelationshipServiceImpl) Get(ctx context.Context, id int) (rels []model
 		rels = append(rels, model.Relationship{
 			User1:   int(rel.User1),
 			User2:   int(rel.User2),
-			Type:    rel.Type.String,
+			Type:    rel.Typ.String,
 			Other:   rel.Other.String,
 			Created: rel.Created.Time,
 		})
@@ -40,7 +40,7 @@ func (r *RelationshipServiceImpl) Friends(ctx context.Context, id int) (rels []m
 		rels = append(rels, model.Relationship{
 			User1:   int(rel.User1),
 			User2:   int(rel.User2),
-			Type:    rel.Type.String,
+			Type:    rel.Typ.String,
 			Other:   rel.Other.String,
 			Created: rel.Created.Time,
 		})
@@ -55,7 +55,7 @@ func (r *RelationshipServiceImpl) Requests(ctx context.Context, id int) (rels []
 		rels = append(rels, model.Relationship{
 			User1:   int(rel.User1),
 			User2:   int(rel.User2),
-			Type:    rel.Type.String,
+			Type:    rel.Typ.String,
 			Other:   rel.Other.String,
 			Created: rel.Created.Time,
 		})
@@ -97,13 +97,13 @@ func (r *RelationshipServiceImpl) ChangeType(ctx context.Context, user1, user2 i
 		User1: u1,
 		User2: u2,
 	})
-	t12 := rel.Type.String
+	t12 := rel.Typ.String
 
 	rel, _ = r.repo.GetRelationship(ctx, repository.GetRelationshipParams{
 		User1: u2,
 		User2: u1,
 	})
-	t21 := rel.Type.String
+	t21 := rel.Typ.String
 
 	//t12 := r.repo.SelectRelationshipWith(u1, u2)
 	//t21 := r.repo.SelectRelationshipWith(u2, u1)
@@ -115,8 +115,8 @@ func (r *RelationshipServiceImpl) ChangeType(ctx context.Context, user1, user2 i
 	switch t {
 	case "accept":
 		if t21 == "request" {
-			r.repo.UpdateRelationship(ctx, repository.UpdateRelationshipParams{User1: u1, User2: u2, Type: pgtype.Text{String: "friend"}})
-			r.repo.UpdateRelationship(ctx, repository.UpdateRelationshipParams{User1: u2, User2: u1, Type: pgtype.Text{String: "friend"}})
+			r.repo.UpdateRelationship(ctx, repository.UpdateRelationshipParams{User1: u1, User2: u2, Typ: pgtype.Text{String: "friend", Valid: true}})
+			r.repo.UpdateRelationship(ctx, repository.UpdateRelationshipParams{User1: u2, User2: u1, Typ: pgtype.Text{String: "friend", Valid: true}})
 		}
 	case "delete":
 		if t21 == "request" {
@@ -128,7 +128,7 @@ func (r *RelationshipServiceImpl) ChangeType(ctx context.Context, user1, user2 i
 		}
 	case "request":
 		if t12 != "friend" && t21 != "block" {
-			r.repo.UpdateRelationship(ctx, repository.UpdateRelationshipParams{User1: u1, User2: u2, Type: pgtype.Text{String: "request"}})
+			r.repo.UpdateRelationship(ctx, repository.UpdateRelationshipParams{User1: u1, User2: u2, Typ: pgtype.Text{String: "request", Valid: true}})
 		}
 	case "unfriend":
 		if t12 == "friend" {
@@ -138,7 +138,7 @@ func (r *RelationshipServiceImpl) ChangeType(ctx context.Context, user1, user2 i
 			r.repo.DeleteRelationship(ctx, repository.DeleteRelationshipParams{u2, u1})
 		}
 	case "block":
-		r.repo.UpdateRelationship(ctx, repository.UpdateRelationshipParams{User1: u1, User2: u2, Type: pgtype.Text{String: "block"}})
+		r.repo.UpdateRelationship(ctx, repository.UpdateRelationshipParams{User1: u1, User2: u2, Typ: pgtype.Text{String: "block", Valid: true}})
 		if t21 != "block" {
 			r.repo.DeleteRelationship(ctx, repository.DeleteRelationshipParams{u2, u1})
 		}
@@ -149,13 +149,6 @@ func (r *RelationshipServiceImpl) ChangeType(ctx context.Context, user1, user2 i
 	default:
 		return fmt.Errorf("unknown type of relationship command")
 	}
-
-	//r.repo.UpdateRelationship(ctx, repository.UpdateRelationshipParams{
-	//	Type:  pgtype.Text{},
-	//	Other: pgtype.Text{},
-	//	User1: 0,
-	//	User2: 0,
-	//})
 
 	return nil
 }
@@ -170,7 +163,7 @@ func (r *RelationshipServiceImpl) GetRelationshipWith(ctx context.Context, u1, u
 		return ""
 	}
 
-	t := rel.Type.String
+	t := rel.Typ.String
 	if t == "request" {
 		t = "follow"
 	}

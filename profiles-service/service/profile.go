@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"app/model"
@@ -91,7 +92,7 @@ func (r *ProfileServiceImpl) Register(ctx context.Context, body ProfileBody) (er
 	_, err = r.repo.CreateProfile(ctx, repository.CreateProfileParams{
 		Name:      body.Username,
 		Gender:    body.Gender,
-		Birthdate: pgtype.Date{Time: birthdate},
+		Birthdate: pgtype.Date{Time: birthdate, Valid: true},
 		Email:     body.Email,
 		Phone:     pgtype.Numeric{},
 	})
@@ -102,17 +103,18 @@ func (r *ProfileServiceImpl) Register(ctx context.Context, body ProfileBody) (er
 func (r *ProfileServiceImpl) SetAvatar(ctx context.Context, id int, photoUrl string) error {
 	_, err := r.repo.UpdateProfile(ctx, repository.UpdateProfileParams{
 		ID:      int32(id),
-		Avatars: pgtype.Text{String: photoUrl},
-		Avatarl: pgtype.Text{String: photoUrl},
+		Avatars: pgtype.Text{String: photoUrl, Valid: true},
+		Avatarl: pgtype.Text{String: photoUrl, Valid: true},
 	})
 	return err
 }
 
 // Функция изменения информации о себе
 func (r *ProfileServiceImpl) ChangeIntro(ctx context.Context, id int, intro string) error {
+	fmt.Println(intro)
 	_, err := r.repo.UpdateProfile(ctx, repository.UpdateProfileParams{
 		ID:    int32(id),
-		Intro: pgtype.Text{String: intro},
+		Intro: pgtype.Text{String: intro, Valid: true},
 	})
 	return err
 }

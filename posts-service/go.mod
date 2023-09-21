@@ -8,7 +8,7 @@ require (
 	github.com/go-chi/jwtauth/v5 v5.1.1
 	github.com/golang-migrate/migrate/v4 v4.16.2
 	github.com/jackc/pgx/v5 v5.4.1
-	gopkg.in/yaml.v3 v3.0.1
+	github.com/joho/godotenv v1.5.1
 )
 
 require (
@@ -52,4 +52,5 @@ require (
 	golang.org/x/sys v0.9.0 // indirect
 	golang.org/x/text v0.10.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

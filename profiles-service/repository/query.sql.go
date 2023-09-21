@@ -39,15 +39,15 @@ func (q *Queries) CreateProfile(ctx context.Context, arg CreateProfileParams) (i
 }
 
 const createRelationship = `-- name: CreateRelationship :one
-INSERT INTO Relationship (user1, user2, type, other)
+INSERT INTO Relationship (user1, user2, typ, other)
 VALUES ($1, $2, $3, $4)
-RETURNING user1, user2, type, other, created
+RETURNING user1, user2, typ, other, created
 `
 
 type CreateRelationshipParams struct {
 	User1 int32       `json:"user1"`
 	User2 int32       `json:"user2"`
-	Type  pgtype.Text `json:"type"`
+	Typ   pgtype.Text `json:"typ"`
 	Other pgtype.Text `json:"other"`
 }
 
@@ -55,14 +55,14 @@ func (q *Queries) CreateRelationship(ctx context.Context, arg CreateRelationship
 	row := q.db.QueryRow(ctx, createRelationship,
 		arg.User1,
 		arg.User2,
-		arg.Type,
+		arg.Typ,
 		arg.Other,
 	)
 	var i Relationship
 	err := row.Scan(
 		&i.User1,
 		&i.User2,
-		&i.Type,
+		&i.Typ,
 		&i.Other,
 		&i.Created,
 	)
@@ -70,11 +70,13 @@ func (q *Queries) CreateRelationship(ctx context.Context, arg CreateRelationship
 }
 
 const deleteRelationship = `-- name: DeleteRelationship :one
+
+
 DELETE
 FROM Relationship
 WHERE user1 = $1
   AND user2 = $2
-RETURNING user1, user2, type, other, created
+RETURNING user1, user2, typ, other, created
 `
 
 type DeleteRelationshipParams struct {
@@ -82,13 +84,23 @@ type DeleteRelationshipParams struct {
 	User2 int32 `json:"user2"`
 }
 
+// UPDATE Relationship
+// SET typ  = COALESCE(sqlc.narg(typ), typ),
+//
+//	other = COALESCE(sqlc.narg(other), other)
+//
+// WHERE user1 = sqlc.arg(user1)
+//
+//	AND user2 = sqlc.arg(user2)
+//
+// RETURNING *;
 func (q *Queries) DeleteRelationship(ctx context.Context, arg DeleteRelationshipParams) (Relationship, error) {
 	row := q.db.QueryRow(ctx, deleteRelationship, arg.User1, arg.User2)
 	var i Relationship
 	err := row.Scan(
 		&i.User1,
 		&i.User2,
-		&i.Type,
+		&i.Typ,
 		&i.Other,
 		&i.Created,
 	)
@@ -107,10 +119,10 @@ func (q *Queries) FriendsDetail(ctx context.Context, urid int32) ([]byte, error)
 }
 
 const getFriendRelationships = `-- name: GetFriendRelationships :many
-SELECT user1, user2, type, other, created
+SELECT user1, user2, typ, other, created
 FROM Relationship
 WHERE user1 = $1
-  and type = 'friend'
+  and typ = 'friend'
 `
 
 func (q *Queries) GetFriendRelationships(ctx context.Context, user1 int32) ([]Relationship, error) {
@@ -125,7 +137,7 @@ func (q *Queries) GetFriendRelationships(ctx context.Context, user1 int32) ([]Re
 		if err := rows.Scan(
 			&i.User1,
 			&i.User2,
-			&i.Type,
+			&i.Typ,
 			&i.Other,
 			&i.Created,
 		); err != nil {
@@ -190,7 +202,7 @@ func (q *Queries) GetProfileByEmail(ctx context.Context, email string) (Profile,
 }
 
 const getRelationship = `-- name: GetRelationship :one
-SELECT user1, user2, type, other, created
+SELECT user1, user2, typ, other, created
 FROM Relationship
 WHERE user1 = $1
   AND user2 = $2
@@ -208,7 +220,7 @@ func (q *Queries) GetRelationship(ctx context.Context, arg GetRelationshipParams
 	err := row.Scan(
 		&i.User1,
 		&i.User2,
-		&i.Type,
+		&i.Typ,
 		&i.Other,
 		&i.Created,
 	)
@@ -216,7 +228,7 @@ func (q *Queries) GetRelationship(ctx context.Context, arg GetRelationshipParams
 }
 
 const getRelationshipsFrom = `-- name: GetRelationshipsFrom :many
-SELECT user1, user2, type, other, created
+SELECT user1, user2, typ, other, created
 FROM Relationship
 WHERE user1 = $1
 `
@@ -233,7 +245,7 @@ func (q *Queries) GetRelationshipsFrom(ctx context.Context, user1 int32) ([]Rela
 		if err := rows.Scan(
 			&i.User1,
 			&i.User2,
-			&i.Type,
+			&i.Typ,
 			&i.Other,
 			&i.Created,
 		); err != nil {
@@ -248,7 +260,7 @@ func (q *Queries) GetRelationshipsFrom(ctx context.Context, user1 int32) ([]Rela
 }
 
 const getRelationshipsTo = `-- name: GetRelationshipsTo :many
-SELECT user1, user2, type, other, created
+SELECT user1, user2, typ, other, created
 FROM Relationship
 WHERE user2 = $1
 `
@@ -265,7 +277,7 @@ func (q *Queries) GetRelationshipsTo(ctx context.Context, user2 int32) ([]Relati
 		if err := rows.Scan(
 			&i.User1,
 			&i.User2,
-			&i.Type,
+			&i.Typ,
 			&i.Other,
 			&i.Created,
 		); err != nil {
@@ -280,10 +292,10 @@ func (q *Queries) GetRelationshipsTo(ctx context.Context, user2 int32) ([]Relati
 }
 
 const getRequestRelationships = `-- name: GetRequestRelationships :many
-SELECT user1, user2, type, other, created
+SELECT user1, user2, typ, other, created
 FROM Relationship
 WHERE user1 = $1
-  and type = 'request'
+  and typ = 'request'
 `
 
 func (q *Queries) GetRequestRelationships(ctx context.Context, user1 int32) ([]Relationship, error) {
@@ -298,7 +310,7 @@ func (q *Queries) GetRequestRelationships(ctx context.Context, user1 int32) ([]R
 		if err := rows.Scan(
 			&i.User1,
 			&i.User2,
-			&i.Type,
+			&i.Typ,
 			&i.Other,
 			&i.Created,
 		); err != nil {
@@ -312,8 +324,8 @@ func (q *Queries) GetRequestRelationships(ctx context.Context, user1 int32) ([]R
 	return items, nil
 }
 
-const mutualFriends = `-- name: MutualFriends :many
-select mutual_friends($1, $2)
+const mutualFriends = `-- name: MutualFriends :one
+select mutual_friends($1, $2)::int[]
 `
 
 type MutualFriendsParams struct {
@@ -322,23 +334,10 @@ type MutualFriendsParams struct {
 }
 
 func (q *Queries) MutualFriends(ctx context.Context, arg MutualFriendsParams) ([]int32, error) {
-	rows, err := q.db.Query(ctx, mutualFriends, arg.U1, arg.U2)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []int32{}
-	for rows.Next() {
-		var mutual_friends int32
-		if err := rows.Scan(&mutual_friends); err != nil {
-			return nil, err
-		}
-		items = append(items, mutual_friends)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+	row := q.db.QueryRow(ctx, mutualFriends, arg.U1, arg.U2)
+	var column_1 []int32
+	err := row.Scan(&column_1)
+	return column_1, err
 }
 
 const searchName = `-- name: SearchName :one
@@ -409,33 +408,32 @@ func (q *Queries) UpdateProfile(ctx context.Context, arg UpdateProfileParams) (P
 }
 
 const updateRelationship = `-- name: UpdateRelationship :one
-UPDATE Relationship
-SET type  = COALESCE($1, type),
-    other = COALESCE($2, other)
-WHERE user1 = $3
-  AND user2 = $4
-RETURNING user1, user2, type, other, created
+insert into Relationship(user1, user2, typ, other)
+values ($1, $2, $3, $4)
+on conflict (user1, user2) do update set typ   = COALESCE($3, Relationship.typ),
+                                         other = COALESCE($4, Relationship.other)
+returning user1, user2, typ, other, created
 `
 
 type UpdateRelationshipParams struct {
-	Type  pgtype.Text `json:"type"`
-	Other pgtype.Text `json:"other"`
 	User1 int32       `json:"user1"`
 	User2 int32       `json:"user2"`
+	Typ   pgtype.Text `json:"typ"`
+	Other pgtype.Text `json:"other"`
 }
 
 func (q *Queries) UpdateRelationship(ctx context.Context, arg UpdateRelationshipParams) (Relationship, error) {
 	row := q.db.QueryRow(ctx, updateRelationship,
-		arg.Type,
-		arg.Other,
 		arg.User1,
 		arg.User2,
+		arg.Typ,
+		arg.Other,
 	)
 	var i Relationship
 	err := row.Scan(
 		&i.User1,
 		&i.User2,
-		&i.Type,
+		&i.Typ,
 		&i.Other,
 		&i.Created,
 	)

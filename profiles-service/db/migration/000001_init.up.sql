@@ -16,7 +16,7 @@ create table Relationship
 (
     user1   int not null references Profile (id) on delete cascade,
     user2   int not null references Profile (id) on delete cascade,
-    type    text        default '',
+    typ     text        default '',
     other   text        default '',
     created timestamptz default now(),
     primary key (user1, user2)

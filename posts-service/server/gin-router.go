@@ -1,20 +1,19 @@
 package server
 
 import (
+	"app/controller"
+	"github.com/go-chi/jwtauth/v5"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-//var tokenAuth = jwtauth.New("HS256", []byte(cfg.Auth.JwtSigningKey), nil)
-
 func (s *GinServer) SetupRouter() {
 	r := s.engine
 
-	api := r.Group("api/v1")
-	//api := r.Group("api/v1", controller.AuthMiddleware(ctrl.auth))
-	//handler := jwtauth.Verifier(tokenAuth)
-	//api.Use(gin.WrapH())
+	tokenAuth := jwtauth.New("HS256", []byte(s.config.Auth.JwtSigningKey), nil)
+
+	api := r.Group("api/v1", controller.AuthMiddleware(tokenAuth))
 
 	post := api.Group("post")
 	{
@@ -27,7 +26,7 @@ func (s *GinServer) SetupRouter() {
 	react := api.Group("react")
 	{
 		react.GET(":post_id", s.handlers.GetReaction)
-		react.GET("u/:u_id", s.handlers.GetReactionByUserPost)
+		react.GET("u/:post_id", s.handlers.GetReactionByUserPost)
 		react.PUT(":post_id/:type", s.handlers.PutReaction)
 	}
 
@@ -42,6 +41,8 @@ func (s *GinServer) SetupRouter() {
 		photo.GET(":id", s.handlers.GetPhoto)
 		photo.GET("u/:id", s.handlers.GetPhotoByUserId)
 	}
+
+	api.GET("feed", s.handlers.Feed)
 
 	r.GET("/manage/health", func(c *gin.Context) {
 		c.Status(http.StatusOK)

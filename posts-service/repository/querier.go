@@ -21,6 +21,7 @@ type Querier interface {
 	GetAlbum(ctx context.Context, id int32) (Album, error)
 	GetAlbumByUserId(ctx context.Context, userid int32) ([]Album, error)
 	GetComments(ctx context.Context, postid int32) ([]Comment, error)
+	GetNewsfeed(ctx context.Context, arg GetNewsfeedParams) (interface{}, error)
 	GetPhoto(ctx context.Context, id int32) (Photo, error)
 	GetPhotoByUserId(ctx context.Context, userid int32) ([]Photo, error)
 	GetPost(ctx context.Context, id int32) (Post, error)

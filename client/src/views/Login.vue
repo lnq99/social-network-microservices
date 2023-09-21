@@ -97,7 +97,7 @@ export default {
     }
   },
   created() {
-    this.loginHandle()
+    // this.loginHandle()
   }
 }
 </script>

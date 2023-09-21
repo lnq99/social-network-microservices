@@ -4,6 +4,7 @@ import (
 	"app/model"
 	"app/repository"
 	"context"
+	"fmt"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -33,7 +34,7 @@ func (r *PhotoServiceImpl) GetAlbumByUserId(ctx context.Context, userId int) (re
 // Функция получения альбома
 func (r *PhotoServiceImpl) GetAlbumId(ctx context.Context, userId int, album string) (albumId int, err error) {
 	albums, err := r.repo.GetAlbumByUserId(ctx, int32(userId))
-	if err != nil {
+	if err == nil {
 		for _, a := range albums {
 			if a.Descr.String == album {
 				albumId = int(a.ID)
@@ -75,6 +76,7 @@ func (r *PhotoServiceImpl) GetPhotoByUserId(ctx context.Context, userId int) (re
 // Функция загрузки фото в альбом
 func (r *PhotoServiceImpl) UploadPhotoToAlbum(ctx context.Context, p model.Photo, album string) (photoId int, err error) {
 	p.AlbumId, err = r.GetAlbumId(ctx, p.UserId, album)
+	fmt.Println(p.UserId, album, p.AlbumId, err)
 	if err != nil {
 		return -1, err
 	}

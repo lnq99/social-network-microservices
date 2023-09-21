@@ -44,56 +44,63 @@ type LoginBody struct {
 	Password string `json:"password"`
 }
 
-//type loginResponse struct {
-//	Token string          `json:"token"`
-//	User  ProfileResponse `json:"user"`
-//}
-//
-//type ProfileResponse struct {
-//	Id        int    `json:"id"`
-//	Name      string `json:"name"`
-//	Gender    string `json:"gender"`
-//	Birthdate string `json:"birthdate"`
-//	Created   string `json:"created"`
-//	Intro     string `json:"intro"`
-//	AvatarS   string `json:"avatars"`
-//	AvatarL   string `json:"avatarl"`
-//	//PostCount  string `json:"postCount"`
-//	//PhotoCount string `json:"photoCount"`
-//}
-
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	//fmt.Fprintf(w, "loginHandler, %q", html.EscapeString(r.URL.Path))
 
-	var payload LoginBody
 	var err error
+	var account repository.Account
 
-	err = json.NewDecoder(r.Body).Decode(&payload)
-	if err != nil {
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		w.Write(ErrInvalidJson)
-		return
+	_, claims, err := jwtauth.FromContext(r.Context())
+	fmt.Printf("%+v\n", claims)
+
+	if err == nil {
+		//token, err := TokenAuth.Decode(cookie.String())
+		fmt.Printf("%+v\n", claims)
+
+		if err == nil {
+			idStr, ok1 := claims["ID"]
+			email, ok2 := claims["email"]
+			role, ok3 := claims["role"]
+
+			if ok1 && ok2 && ok3 {
+				account.ID = int32(idStr.(float64))
+				account.Email = email.(string)
+				account.Role = pgtype.Text{role.(string), true}
+			}
+		}
+	} else {
+		fmt.Println(err)
 	}
 
-	//fmt.Printf("%+v\n", payload)
+	if account.ID == 0 {
+		var payload LoginBody
 
-	account, err := authRepo.GetAccountByEmail(r.Context(), payload.Email)
-	fmt.Printf("%+v\n", account)
+		err = json.NewDecoder(r.Body).Decode(&payload)
+		if err != nil {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			w.Write(ErrInvalidJson)
+			return
+		}
 
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write(ErrWrongEmailOrPassword)
-		return
-	} else if account.Email != payload.Email {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+		//fmt.Printf("%+v\n", payload)
 
-	err = auth.CheckPassword(payload.Password, account.Password)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write(ErrWrongEmailOrPassword)
-		return
+		account, err = authRepo.GetAccountByEmail(r.Context(), payload.Email)
+
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write(ErrWrongEmailOrPassword)
+			return
+		} else if account.Email != payload.Email {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		err = auth.CheckPassword(payload.Password, account.Password)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write(ErrWrongEmailOrPassword)
+			return
+		}
 	}
 
 	_, tokenString, err := TokenAuth.Encode(map[string]interface{}{
@@ -102,7 +109,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		"role":  account.Role.String,
 	})
 
-	cookie := http.Cookie{
+	cookie := &http.Cookie{
 		Name: tokenName,
 		Path: "/",
 		//Domain: "",
@@ -112,9 +119,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	}
 	//fmt.Printf("%+v\n", cookie.Value)
-	http.SetCookie(w, &cookie)
+	http.SetCookie(w, cookie)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+
+	r.AddCookie(cookie)
 
 	res, err := CallServiceWithCircuitBreaker(
 		profilesCb, "GET",
@@ -135,8 +144,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "logoutHandler, %q", html.EscapeString(r.URL.Path))
-
 	cookie := &http.Cookie{
 		Name:     tokenName,
 		Value:    "",
@@ -145,6 +152,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	}
 	http.SetCookie(w, cookie)
+	w.WriteHeader(http.StatusOK)
 }
 
 type RegisterBody struct {
@@ -189,92 +197,3 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 	processResponse[int](w, req.status, req.body, err)
 }
-
-//func Authenticator(next http.Handler) http.Handler {
-//	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-//		token, _, err := FromContext(r.Context())
-//
-//		if err != nil {
-//			http.Error(w, err.Error(), http.StatusUnauthorized)
-//			return
-//		}
-//
-//		if token == nil || jwt.Validate(token) != nil {
-//			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-//			return
-//		}
-//
-//		// Token is authenticated, pass it through
-//		next.ServeHTTP(w, r)
-//	})
-//}
-
-//func AuthMiddleware(next http.Handler) http.Handler {
-//	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-//		articleID := chi.URLParam(r, "articleID")
-//		article, err := dbGetArticle(articleID)
-//		if err != nil {
-//			http.Error(w, http.StatusText(404), 404)
-//			return
-//		}
-//		ctx := context.WithValue(r.Context(), "article", article)
-//		next.ServeHTTP(w, r.WithContext(ctx))
-//
-//		id := 0
-//
-//		token, err := r.Cookie("token")
-//		if err == nil {
-//			id, err = a.ParseTokenId(token.String())
-//			if err == nil {
-//				ctx := context.WithValue(r.Context(), "ID", id)
-//				next.ServeHTTP(w, r.WithContext(ctx))
-//				// log.Println(id, token, err)
-//				return
-//			}
-//		}
-//
-//		err = a.TokenValid(c.Request)
-//		// log.Println(err)
-//
-//		if err != nil {
-//			c.AbortWithStatus(http.StatusUnauthorized)
-//		}
-//	})
-//}
-
-//func AuthMiddleware(a *auth.Manager) http.HandlerFunc {
-//	return func(w http.ResponseWriter, r *http.Request) {
-//		id := 0
-//
-//		token, err := r.Cookie("token")
-//		if err == nil {
-//			id, err = a.ParseTokenId(token.String())
-//			if err == nil {
-//				http.SetCookie(w)
-//				c.Set("ID", id)
-//				// log.Println(id, token, err)
-//				return
-//			}
-//		}
-//
-//		err = a.TokenValid(c.Request)
-//		// log.Println(err)
-//
-//		if err != nil {
-//			c.AbortWithStatus(http.StatusUnauthorized)
-//		}
-//	}
-//}
-
-//func ArticleCtx(next http.Handler) http.Handler {
-//	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-//		articleID := chi.URLParam(r, "articleID")
-//		article, err := dbGetArticle(articleID)
-//		if err != nil {
-//			http.Error(w, http.StatusText(404), 404)
-//			return
-//		}
-//		ctx := context.WithValue(r.Context(), "article", article)
-//		next.ServeHTTP(w, r.WithContext(ctx))
-//	})
-//}

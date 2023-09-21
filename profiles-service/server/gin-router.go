@@ -1,6 +1,8 @@
 package server
 
 import (
+	"app/controller"
+	"github.com/go-chi/jwtauth/v5"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,22 +11,26 @@ import (
 func (s *GinServer) SetupRouter() {
 	r := s.engine
 
-	v1 := r.Group("api/v1")
+	tokenAuth := jwtauth.New("HS256", []byte(s.config.Auth.JwtSigningKey), nil)
 
-	profile := v1.Group("profile")
+	api := r.Group("api/v1", controller.AuthMiddleware(tokenAuth))
+
+	profile := api.Group("profile")
 	{
 		profile.GET(":id", s.handlers.GetProfile)
 		profile.GET("short/:id", s.handlers.GetShortProfile)
 		profile.PATCH("intro", s.handlers.ChangeIntro)
 	}
 
-	rel := v1.Group("rel")
+	rel := api.Group("rel")
 	{
 		rel.GET("friends/:id", s.handlers.GetFriendsDetail)
 		rel.GET("mutual-friends/:id", s.handlers.GetMutualFriends)
 		rel.GET("mutual-type/:id", s.handlers.GetMutualAndType)
 		rel.PUT(":id/:type", s.handlers.ChangeType)
 	}
+
+	api.GET("search", s.handlers.Search)
 
 	//apiV1.GET("ping", func(c *gin.Context) {
 	//	c.JSON(http.StatusOK, gin.H{

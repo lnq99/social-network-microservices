@@ -50,6 +50,7 @@ const routes = [
   },
   {
     path: '/logout',
+    component: () => import('../views/Login.vue'),
     beforeEnter(to, from, next) {
       store.dispatch('logout').then((res) => {
         next('/login')

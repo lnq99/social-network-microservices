@@ -31,7 +31,7 @@ select setval('profile_id_seq', (select max(id) from Profile));
 --        ('Jessica Kim', 'F', '1998-05-01', 'jessicakim@example.com', NULL, NULL, 'https://example.com/avatar5_thumb.jpg',
 --         'https://example.com/avatar5.jpg');
 --
--- INSERT INTO Relationship (user1, user2, type, other)
+-- INSERT INTO Relationship (user1, user2, typ, other)
 -- VALUES (1, 3, 'friend', ''),
 --        (3, 1, 'friend', ''),
 --        (1, 4, 'friend', 'dating'),

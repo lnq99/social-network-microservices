@@ -2,6 +2,7 @@ package controller
 
 import (
 	"app/util"
+	"fmt"
 	"net/http"
 
 	"app/service"
@@ -69,6 +70,8 @@ func (ctrl *Controller) PostPost(c *gin.Context) {
 		return
 	}
 	err := ctrl.service.Post.Post(c, ID, postBody)
+
+	fmt.Println(err)
 
 	jsonResponse(c, err,
 		Response{Code: http.StatusCreated},

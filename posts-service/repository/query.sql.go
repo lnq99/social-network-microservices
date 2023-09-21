@@ -292,6 +292,29 @@ func (q *Queries) GetComments(ctx context.Context, postid int32) ([]Comment, err
 	return items, nil
 }
 
+const getNewsfeed = `-- name: GetNewsfeed :one
+select array(
+               select id
+               from Post
+               where userId = any ($1::int[])
+               order by created desc
+               limit $2 offset $3
+           )
+`
+
+type GetNewsfeedParams struct {
+	Column1 []int32 `json:"column_1"`
+	Limit   int32   `json:"limit"`
+	Offset  int32   `json:"offset"`
+}
+
+func (q *Queries) GetNewsfeed(ctx context.Context, arg GetNewsfeedParams) (interface{}, error) {
+	row := q.db.QueryRow(ctx, getNewsfeed, arg.Column1, arg.Limit, arg.Offset)
+	var exists interface{}
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const getPhoto = `-- name: GetPhoto :one
 select id, userid, albumid, url, created
 from Photo

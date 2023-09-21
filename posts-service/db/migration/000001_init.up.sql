@@ -8,7 +8,7 @@ create table Post
     atchType text        default 'none',
     atchId   int         default 0,
     atchUrl  text        default '',
-    reaction int[6],
+    reaction int[6]      default '{0,0,0,0,0,0}',
     cmtCount int         default 0
 );
 

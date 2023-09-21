@@ -4,6 +4,7 @@ import (
 	"app/model"
 	"app/repository"
 	"context"
+	"fmt"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -37,7 +38,11 @@ func (r *PostServiceImpl) Get(ctx context.Context, postId int) (post model.Post,
 // Функция получения публикации пользователя
 func (r *PostServiceImpl) GetByUserId(ctx context.Context, userId int) ([]int32, error) {
 	posts, err := r.repo.GetPostByUserId(ctx, int32(userId))
-	return posts.([]int32), err
+	res := []int32{}
+	for _, v := range posts.([]interface{}) {
+		res = append(res, v.(int32))
+	}
+	return res, err
 }
 
 // Функция получения реакции на публикацию
@@ -48,24 +53,26 @@ func (r *PostServiceImpl) GetReaction(ctx context.Context, postId int) ([]int32,
 
 // Функция добавления публикации
 func (r *PostServiceImpl) Post(ctx context.Context, userId int, body PostBody) (err error) {
-	post := model.Post{
-		UserId:   userId,
-		Tags:     body.Tags,
-		Content:  body.Content,
-		AtchType: body.AtchType,
-		AtchId:   body.AtchId,
-		AtchUrl:  body.AtchUrl,
-	}
-	if post.AtchType == "photo" {
+	//post := model.Post{
+	//	UserId:   userId,
+	//	Tags:     body.Tags,
+	//	Content:  body.Content,
+	//	AtchType: body.AtchType,
+	//	AtchId:   body.AtchId,
+	//	AtchUrl:  body.AtchUrl,
+	//}
+	if body.AtchType == "photo" {
 		photoId, err := GetService(r.repo).Photo.UploadPhoto(ctx, model.Photo{
-			UserId: post.UserId,
-			Url:    post.AtchUrl,
+			UserId: userId,
+			Url:    body.AtchUrl,
 		})
 
 		if err != nil {
 			return err
 		}
-		post.AtchId = photoId
+		fmt.Println(photoId, err)
+		body.AtchId = photoId
+		fmt.Println(photoId, body.AtchId, int32(body.AtchId))
 	}
 	_, err = r.repo.CreatePost(ctx, repository.CreatePostParams{
 		Userid:   int32(userId),

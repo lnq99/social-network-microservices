@@ -1,23 +1,23 @@
 <template>
   <div class="row">
     <div class="btn-contaner">
-      <el-popover placement="top" trigger="hover" :width="180">
+      <el-popover :width="205" placement="top" trigger="hover">
         <img
-          class="react-icon"
-          :class="{ 'react-icon-on': i == liked }"
-          @click="onReact(i)"
           v-for="(url, i) in icons"
+          :class="{ 'react-icon-on': i == liked }"
           :src="url"
+          class="react-icon"
+          @click="onReact(i)"
         />
         <template #reference>
           <el-button
-            class="btn"
             :class="{ 'btn-on': liked != -1 }"
+            class="btn"
+            size="small"
             type="primary"
             @click="onReact(-1)"
-            size="small"
           >
-            <div class="btn-icon" v-if="liked != -1">
+            <div v-if="liked != -1" class="btn-icon">
               {{ iconsName[liked] }}
               <img :src="icons[liked]" />
             </div>
@@ -25,10 +25,10 @@
           </el-button>
         </template>
       </el-popover>
-      <el-button class="btn" size="small" @click="comment = !comment">{{ cmtCount }} Comments</el-button>
+      <el-button class="btn" size="small" @click="comment = !comment">Comments</el-button>
     </div>
     <div class="reacts">
-      <div class="react" v-for="(v, i) in reaction">
+      <div v-for="(v, i) in reaction" class="react">
         {{ v }}
         <img :src="icons[i]" />
       </div>

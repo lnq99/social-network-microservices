@@ -1,12 +1,8 @@
 package config
 
 import (
-	"flag"
+	"github.com/joho/godotenv"
 	"os"
-
-	"app/util"
-
-	"gopkg.in/yaml.v3"
 )
 
 type ServerConfig struct {
@@ -22,27 +18,26 @@ type MigrationConfig struct {
 	Url string `mapstructure:"MIGRATION_URL"`
 }
 
+type AuthConfig struct {
+	JwtSigningKey string `mapstructure:"JWT_SIGNING_KEY"`
+}
+
 type Config struct {
 	Server    ServerConfig
 	Db        DbConfig
 	Migration MigrationConfig
+	Auth      AuthConfig
 }
 
-func LoadConfig() (c *Config, err error) {
-	filename := flag.String("configFile", "config.yaml", "Config file (default: config.yaml)")
+func LoadConfig() (c Config, err error) {
+	godotenv.Load(".env")
 
-	data, err := os.ReadFile(*filename)
-	if err != nil {
-		return
-	}
-	err = yaml.Unmarshal(data, &c)
-	if err != nil {
-		return
-	}
+	c.Server.Host = os.Getenv("SERVER_HOST")
+	c.Server.Port = os.Getenv("SERVER_PORT")
 
-	c.Server.Host = util.GetEnv("HOST", c.Server.Host)
-	c.Server.Port = util.GetEnv("PORT", c.Server.Port)
-	c.Db.Url = util.GetEnv("DB_URL", c.Db.Url)
+	c.Db.Url = os.Getenv("DB_URL")
+	c.Migration.Url = os.Getenv("MIGRATION_URL")
+	c.Auth.JwtSigningKey = os.Getenv("JWT_SIGNING_KEY")
 
 	return
 }

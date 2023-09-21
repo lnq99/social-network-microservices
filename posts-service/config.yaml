@@ -1,9 +1,0 @@
-db:
-  url: postgresql://program:test@db:5432/posts?sslmode=disable
-
-migration:
-  url: file://./db/migration
-
-server:
-  host: 0.0.0.0
-  port: 8060

@@ -117,3 +117,15 @@ where UserId = $1;
 insert into Album(id, userId, descr, created)
 values ($1, $2, $3, $4)
 returning *;
+
+
+-- name: GetNewsfeed :one
+select array(
+               select id
+               from Post
+               where userId = any ($1::int[])
+               order by created desc
+               limit $2 offset $3
+           );
+
+-- select feed($1::int[], $2, $3);

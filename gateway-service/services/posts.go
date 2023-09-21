@@ -23,20 +23,20 @@ func NewPostsService() Service {
 			Path: "",
 		},
 		Endpoints: []Endpoint{
-			{"GET", "post/u/{id}", proxyHandler},
 			{"GET", "post/{id}", proxyHandler},
+			{"GET", "post/u/{id}", proxyHandler},
 			{"POST", "post", proxyHandler},
 			{"DELETE", "post/{id}", proxyHandler},
 
-			{"GET", "react/u/{u_id}", proxyHandler},
 			{"GET", "react/{post_id}", proxyHandler},
+			{"GET", "react/u/{u_id}", proxyHandler},
 			{"PUT", "react/{post_id}/{type}", proxyHandler},
 
 			{"GET", "cmt/{id}", proxyHandler},
 			{"POST", "cmt", proxyHandler},
 
-			{"GET", "photo/u/{id}", proxyHandler},
 			{"GET", "photo/{id}", proxyHandler},
+			{"GET", "photo/u/{id}", proxyHandler},
 		},
 	}
 	return service

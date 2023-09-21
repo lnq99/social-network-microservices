@@ -14,10 +14,10 @@ type GinServer struct {
 	util.BaseServer
 	engine   *gin.Engine
 	handlers *controller.Controller
-	config   *config.ServerConfig
+	config   *config.Config
 }
 
-func NewGinServer(service *service.Service, cfg *config.ServerConfig) util.Server {
+func NewGinServer(service *service.Service, cfg *config.Config) util.Server {
 	// engine.SetMode(engine.ReleaseMode)
 	engine := gin.New()
 
@@ -38,7 +38,7 @@ func NewGinServer(service *service.Service, cfg *config.ServerConfig) util.Serve
 
 func (s *GinServer) Run() {
 	cfg := util.DefaultConfig()
-	cfg.Addr = s.config.Host + ":" + s.config.Port
+	cfg.Addr = s.config.Server.Host + ":" + s.config.Server.Port
 	cfg.Handler = s.engine
 	s.InitHttpServer(cfg)
 	s.BaseServer.Run()

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"app/util"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -40,10 +41,11 @@ func (ctrl *Controller) GetReaction(c *gin.Context) {
 // @Router /react/u/{post_id} [get]
 func (ctrl *Controller) GetReactionByUserPost(c *gin.Context) {
 	ID := c.MustGet("ID").(int)
-	react, err := ctrl.service.Reaction.GetByUserPost(c, ID, util.ToInt(c.Param("u_id")))
+	react, err := ctrl.service.Reaction.GetByUserPost(c, ID, util.ToInt(c.Param("post_id")))
+	//c.JSON(http.StatusOK, react)
 	jsonResponse(c, err,
 		Response{http.StatusOK, dataResponse{react}},
-		ErrResponse{Code: http.StatusInternalServerError})
+		ErrResponse{Code: http.StatusOK})
 }
 
 // PutReaction
@@ -63,6 +65,7 @@ func (ctrl *Controller) PutReaction(c *gin.Context) {
 	ID := c.MustGet("ID").(int)
 	postId := util.ToInt(c.Param("post_id"))
 	t := c.Param("type")
+	fmt.Println(ID, postId, t)
 	err := ctrl.service.Reaction.UpdateReaction(c, ID, postId, t)
 	jsonResponse(c, err,
 		Response{Code: http.StatusOK},

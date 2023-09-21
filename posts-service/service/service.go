@@ -18,6 +18,7 @@ type Service struct {
 	Comment  CommentService
 	Reaction ReactionService
 	Photo    PhotoService
+	Feed     FeedService
 }
 
 func GetService(repo repository.Repo) *Service {
@@ -27,6 +28,7 @@ func GetService(repo repository.Repo) *Service {
 			Comment:  NewCommentService(repo),
 			Reaction: NewReactionService(repo),
 			Photo:    NewPhotoService(repo),
+			Feed:     NewFeedService(repo),
 		}
 	})
 	return service
@@ -61,6 +63,10 @@ type PhotoService interface {
 	UploadPhotoToAlbum(ctx context.Context, p model.Photo, album string) (int, error)
 	UploadPhoto(ctx context.Context, p model.Photo) (int, error)
 	SetAvatar(ctx context.Context, p model.Photo) error
+}
+
+type FeedService interface {
+	GetNewsfeed(ctx context.Context, ids_arr []int32, limit, offset int32) ([]int32, error)
 }
 
 type CommentBody struct {

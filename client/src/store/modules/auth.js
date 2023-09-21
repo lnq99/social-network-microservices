@@ -45,7 +45,7 @@ export default {
       return axios(options)
     },
     logout({commit}) {
-      axios({url: '/logout'}).then(() => {
+      axios({method: 'DELETE', url: '/auth/logout'}).then(() => {
         commit('auth', false)
         commit('setToken', '')
       })

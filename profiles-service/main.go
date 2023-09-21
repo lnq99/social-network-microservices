@@ -33,7 +33,7 @@ func main() {
 
 	svc := service.GetService(repo)
 
-	svr := server.NewGinServer(svc, &cfg.Server)
+	svr := server.NewGinServer(svc, &cfg)
 
 	svr.Run()
 }

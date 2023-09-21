@@ -21,7 +21,7 @@ import (
 )
 
 var (
-	cfg *config.Config
+	cfg config.Config
 )
 
 func init() {
@@ -64,7 +64,7 @@ func main() {
 		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
 		AllowedOrigins: []string{"https://*", "http://*"},
 		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		AllowCredentials: true,
 	}))
@@ -100,6 +100,7 @@ func main() {
 		})
 
 		r.Route("/api/v1/auth", func(r chi.Router) {
+			r.Use(jwtauth.Verifier(services.TokenAuth))
 			s := services.ChiRouter{r}
 			s.RegisterService(services.NewAuthService(repo))
 		})

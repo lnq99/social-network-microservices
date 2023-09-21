@@ -24,7 +24,15 @@ type Profile struct {
 type Relationship struct {
 	User1   int32              `json:"user1"`
 	User2   int32              `json:"user2"`
-	Type    pgtype.Text        `json:"type"`
+	Typ     pgtype.Text        `json:"typ"`
+	Other   pgtype.Text        `json:"other"`
+	Created pgtype.Timestamptz `json:"created"`
+}
+
+type Ttmp struct {
+	User1   int32              `json:"user1"`
+	User2   int32              `json:"user2"`
+	Typ     pgtype.Text        `json:"typ"`
 	Other   pgtype.Text        `json:"other"`
 	Created pgtype.Timestamptz `json:"created"`
 }

@@ -36,7 +36,7 @@ SELECT search_name($1, $2);
 
 
 -- name: CreateRelationship :one
-INSERT INTO Relationship (user1, user2, type, other)
+INSERT INTO Relationship (user1, user2, typ, other)
 VALUES ($1, $2, $3, $4)
 RETURNING *;
 
@@ -65,23 +65,29 @@ WHERE user2 = $1;
 SELECT *
 FROM Relationship
 WHERE user1 = $1
-  and type = 'friend';
+  and typ = 'friend';
 
 
 -- name: GetRequestRelationships :many
 SELECT *
 FROM Relationship
 WHERE user1 = $1
-  and type = 'request';
+  and typ = 'request';
 
 
 -- name: UpdateRelationship :one
-UPDATE Relationship
-SET type  = COALESCE(sqlc.narg(type), type),
-    other = COALESCE(sqlc.narg(other), other)
-WHERE user1 = sqlc.arg(user1)
-  AND user2 = sqlc.arg(user2)
-RETURNING *;
+insert into Relationship(user1, user2, typ, other)
+values ($1, $2, sqlc.narg(typ), sqlc.narg(other))
+on conflict (user1, user2) do update set typ   = COALESCE(sqlc.narg(typ), Relationship.typ),
+                                         other = COALESCE(sqlc.narg(other), Relationship.other)
+returning *;
+
+-- UPDATE Relationship
+-- SET typ  = COALESCE(sqlc.narg(typ), typ),
+--     other = COALESCE(sqlc.narg(other), other)
+-- WHERE user1 = sqlc.arg(user1)
+--   AND user2 = sqlc.arg(user2)
+-- RETURNING *;
 
 
 -- name: DeleteRelationship :one
@@ -96,5 +102,5 @@ RETURNING *;
 select friends_json($1);
 
 
--- name: MutualFriends :many
-select mutual_friends($1, $2);
+-- name: MutualFriends :one
+select mutual_friends($1, $2)::int[];

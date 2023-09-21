@@ -41,3 +41,18 @@ create trigger reaction_type_update
     on Reaction
     for each row
 execute function reaction_update();
+
+
+--------------------------------------------------
+create or replace function feed(ids_arr int[], lim int default 10, offs int default 0)
+    returns int[]
+as
+$$
+select array(
+               select id
+               from Post
+               where userId = any (ids_arr)
+               order by created desc
+               limit lim offset offs
+           )
+$$ language sql;

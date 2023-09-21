@@ -6,6 +6,8 @@ import router from '../router'
 // axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8'
 axios.defaults.withCredentials = true
 axios.defaults.baseURL = 'http://localhost:8080/api/v1'
+// axios.defaults.baseURL = process.env.BASE_URL
+// console.log(axios.defaults.baseURL)
 
 axios.interceptors.request.use(
   function (config) {
