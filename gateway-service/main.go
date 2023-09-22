@@ -77,10 +77,10 @@ func main() {
 		// Handle valid / invalid tokens
 		r.Use(jwtauth.Authenticator)
 
-		r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
-			_, claims, _ := jwtauth.FromContext(r.Context())
-			w.Write([]byte(fmt.Sprintf("protected area. hi %+v", claims)))
-		})
+		//r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
+		//	_, claims, _ := jwtauth.FromContext(r.Context())
+		//	w.Write([]byte(fmt.Sprintf("protected area. hi %+v", claims)))
+		//})
 
 		r.Route("/api/v1", func(r chi.Router) {
 			//rProtected := r.Use(services.AuthMiddleware)
@@ -90,6 +90,7 @@ func main() {
 			s.RegisterService(services.NewPostsService())
 			s.RegisterService(services.NewNewsFeedService())
 			s.RegisterService(services.NewSearchService())
+			s.RegisterService(services.NewStatsService())
 		})
 	})
 

@@ -3,7 +3,7 @@ version: "3"
 services:
   gateway:
     #    platform: linux/amd64
-    image: lnq99/sn-gateway:1.0
+    #    image: lnq99/sn-gateway:1.0
     container_name: gateway
     build: gateway-service
     depends_on:
@@ -30,7 +30,7 @@ services:
 
   profiles:
     #    platform: linux/amd64
-    image: lnq99/sn-profiles:1.0
+    #    image: lnq99/sn-profiles:1.0
     container_name: profiles
     build: profiles-service
     depends_on:
@@ -46,7 +46,7 @@ services:
 
   posts:
     #    platform: linux/amd64
-    image: lnq99/sn-posts:1.0
+    #    image: lnq99/sn-posts:1.0
     container_name: posts
     build: posts-service
     depends_on:
@@ -62,7 +62,7 @@ services:
 
   stats:
     #    platform: linux/amd64
-    image: lnq99/sn-stats:1.0
+    #    image: lnq99/sn-stats:1.0
     container_name: stats
     build: stats-service
     depends_on:
@@ -78,7 +78,7 @@ services:
 
   web:
     #    platform: linux/amd64
-    image: lnq99/sn-web:1.0
+    #    image: lnq99/sn-web:1.0
     container_name: web
     build: client
     depends_on:

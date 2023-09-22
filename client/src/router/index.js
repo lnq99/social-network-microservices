@@ -33,6 +33,11 @@ const routes = [
         name: 'Photo',
         component: () => import('../views/Photo.vue'),
       },
+      {
+        path: 'admin',
+        name: 'Admin',
+        component: () => import('../views/Admin.vue'),
+      },
     ],
     meta: {
       requiredAuth: true,

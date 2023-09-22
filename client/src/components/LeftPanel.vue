@@ -1,5 +1,5 @@
 <template v-if=loaded>
-  <el-avatar class="ava" :size="200" :src="avatar"></el-avatar>
+  <el-avatar :size="200" :src="avatar" class="ava"></el-avatar>
   <h2 class="name">{{ name }}</h2>
 
   <link-card :cls="cls" link="/"> News </link-card>
@@ -14,15 +14,20 @@
     <p>Notification</p>
     <!-- </el-badge> -->
   </link-card>
+  <link-card :cls="cls" link="/admin">
+    <!-- <el-badge :value="100" :max="10" class="item"> -->
+    <p>Admin</p>
+    <!-- </el-badge> -->
+  </link-card>
   <link-card :cls="cls" link="/search"> Search </link-card>
   <link-card :cls="cls" link="/logout"> Logout </link-card>
   <div class="center">
     <el-switch
       v-model="theme"
-      class="switch"
       active-color="#111"
-      inactive-color="#aaa"
       active-text="Dark"
+      class="switch"
+      inactive-color="#aaa"
       inactive-text="Light"
     >
     </el-switch>
@@ -54,7 +59,7 @@ export default {
         this.$store.dispatch('theme/switchTheme', value)
       },
     },
-    ...mapState({ id: 'id' }),
+    ...mapState({ id: 'id', role: 'role' }),
     ...mapState('profile', { name: 'name', avatar: 'avatarl' }),
   },
   created() {

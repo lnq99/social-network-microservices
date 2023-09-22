@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/jackc/pgx/v5/pgtype"
-	"html"
 	"net/http"
 	"strconv"
 	"time"
@@ -57,16 +56,14 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		//token, err := TokenAuth.Decode(cookie.String())
 		fmt.Printf("%+v\n", claims)
 
-		if err == nil {
-			idStr, ok1 := claims["ID"]
-			email, ok2 := claims["email"]
-			role, ok3 := claims["role"]
+		idStr, ok1 := claims["ID"]
+		email, ok2 := claims["email"]
+		role, ok3 := claims["role"]
 
-			if ok1 && ok2 && ok3 {
-				account.ID = int32(idStr.(float64))
-				account.Email = email.(string)
-				account.Role = pgtype.Text{role.(string), true}
-			}
+		if ok1 && ok2 && ok3 {
+			account.ID = int32(idStr.(float64))
+			account.Email = email.(string)
+			account.Role = pgtype.Text{role.(string), true}
 		}
 	} else {
 		fmt.Println(err)
@@ -138,6 +135,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"token": tokenString,
 		"user":  reqBody,
+		"role":  account.Role.String,
 	})
 
 	//processResponse[interface{}](w, req.status, req.body, err)
@@ -164,7 +162,7 @@ type RegisterBody struct {
 }
 
 func registerHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "registerHandler, %q", html.EscapeString(r.URL.Path))
+	//fmt.Fprintf(w, "registerHandler, %q", html.EscapeString(r.URL.Path))
 
 	var payload RegisterBody
 	var err error
@@ -185,7 +183,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 	authRepo.CreateAccount(r.Context(), repository.CreateAccountParams{
 		Email:    payload.Email,
-		Role:     pgtype.Text{String: payload.Password},
+		Role:     pgtype.Text{String: payload.Password, Valid: true},
 		Password: hashedPassword,
 	})
 

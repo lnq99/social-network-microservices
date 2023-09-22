@@ -4,6 +4,7 @@ export default {
   state: {
     isLoggedIn: false,
     token: '',
+    role: '',
   },
   mutations: {
     auth(state, loginStatus) {
@@ -11,6 +12,10 @@ export default {
     },
     setToken(state, token) {
       state.token = token
+      // axios.defaults.headers.common['Authorization'] = token
+    },
+    setRole(state, role) {
+      state.role = role
       // axios.defaults.headers.common['Authorization'] = token
     },
   },
@@ -27,6 +32,7 @@ export default {
           console.log(data)
           commit('setRootId', data.user.id)
           commit('setToken', data.token)
+          commit('setRole', data.role)
           commit('auth', true)
           commit('profile/initProfile', data.user, {root: true})
           return true

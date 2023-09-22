@@ -1,15 +1,14 @@
 package services
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 )
 
-type SearchService interface {
-	GetSearch(id, limit, offset int) (feed []int64, err error)
-}
+//type SearchService interface {
+//	GetSearch(id, limit, offset int) (feed []int64, err error)
+//}
 
 func NewSearchService() Service {
 	target, _ := url.Parse(ProfilesServiceAddr)
@@ -34,9 +33,9 @@ func NewSearchService() Service {
 	return service
 }
 
-func searchName(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode([]int{
-		1, 2, 3,
-	})
-}
+//func searchName(w http.ResponseWriter, r *http.Request) {
+//	w.Header().Set("Content-Type", "application/json")
+//	json.NewEncoder(w).Encode([]int{
+//		1, 2, 3,
+//	})
+//}
