@@ -1,0 +1,57 @@
+
+global: 
+  db_host:            "zdhamasha-postgresql.zdhamasha.svc.cluster.local"
+  db_username:        "postgres"
+  db_password:        "P@ssw0rd"
+
+
+gateway:
+  enabled: true
+  image: 
+    repository: lnq99/sn-gateway
+    tag: "1.0"
+  ingress: 
+    devopsDomain: "devops-dev-ing.zaid.cloud"
+    tls: 
+      secretName: ""
+
+profiles:
+  enabled: true
+  image: 
+    repository: lnq99/sn-profiles
+    tag: "1.0"
+  ingress: 
+    devopsDomain: "devops-dev-ing.zaid.cloud"
+    tls: 
+      secretName: ""
+
+posts:
+  enabled: true
+  image: 
+    repository: lnq99/sn-posts
+    tag: "1.0"
+  ingress: 
+    devopsDomain: "devops-dev-ing.zaid.cloud"
+    tls: 
+      secretName: ""
+
+
+web:
+  enabled: true
+  image: 
+    repository: lnq99/sn-web
+    tag: "1.0"
+  ingress: 
+    devopsDomain: "devops-dev-ing.zaid.cloud"
+    tls: 
+      secretName: ""
+
+stats:
+  enabled: true
+  image: 
+    repository: lnq99/sn-stats
+    tag: "1.0"
+  ingress: 
+    devopsDomain: "devops-dev-ing.zaid.cloud"
+    tls: 
+      secretName: ""

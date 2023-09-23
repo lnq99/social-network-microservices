@@ -1,0 +1,16 @@
+dependencies:
+  - name: web
+    version: 0.1.0
+    condition: web.enabled
+  - name: posts
+    version: 0.1.0
+    condition: posts.enabled
+  - name: gateway
+    version: 0.1.0
+    condition: gateway.enabled
+  - name: profiles
+    version: 0.1.0
+    condition: profiles.enabled
+  - name: stats
+    version: 0.1.0
+    condition: stats.enabled

@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "stats.fullname" . }}
+  labels:
+    {{- include "stats.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "stats.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "stats.selectorLabels" . | nindent 8 }}
+    spec:
+      imagePullSecrets:
+      - name: dockerhub-pull-secret
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: SERVER_HOST
+            value: "0.0.0.0"
+          - name: SERVER_PORT
+            value: "8050"
+          - name: DB_URL
+            value: postgresql://program:test@postgressql-postgresql:5432/stats?sslmode=disable
+          - name: JWT_SIGNING_KEY
+            value: "f6g7f8ngdf6nadsfdg34r123"
+          - name: MIGRATION_URL
+            value: "file://./db/migration"
+          ports:
+            - name: http
+              containerPort: 8050
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

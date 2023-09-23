@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gateway.fullname" . }}
+  labels:
+    {{- include "gateway.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "gateway.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "gateway.selectorLabels" . | nindent 8 }}
+    spec:
+      imagePullSecrets:
+      - name: dockerhub-pull-secret
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: SERVER_HOST
+            value: "0.0.0.0"
+          - name: SERVER_PORT
+            value: "8080"
+          - name: SERVICE_PROFILES_ADDR
+            value: {{ .Release.Name }}-profiles
+          - name: SERVICE_POSTS_ADDR
+            value: {{ .Release.Name }}-posts
+          - name: SERVICE_STATS_ADDR
+            value: {{ .Release.Name }}-stats
+          - name: SERVICE_QUEUE_ADDR
+            value: redis-master
+          - name: DB_URL
+            value: "postgresql://program:test@postgressql-postgresql:5432/auth?sslmode=disable"
+          - name: JWT_SIGNING_KEY
+            value: "f6g7f8ngdf6nadsfdg34r123"
+          - name: MIGRATION_URL
+            value: "file://./db/migration"
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

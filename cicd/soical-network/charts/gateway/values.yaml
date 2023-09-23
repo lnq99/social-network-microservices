@@ -1,0 +1,23 @@
+replicaCount: 1
+
+image:
+  repository: ""
+  pullPolicy: Always
+  tag: ""
+
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  hostname: ""
+
+resources: 
+  limits:
+    cpu: 300m
+    memory: 500Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
